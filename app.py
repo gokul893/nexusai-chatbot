@@ -1,13 +1,15 @@
 
 import streamlit as st
-from openai import OpenAI
-import os
 from dotenv import load_dotenv
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Load environment variables
-load_dotenv()
+#load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI()
+#client = OpenAI()
 
 # Set up the Streamlit app
 st.set_page_config(page_title="NexusAI Chatbot", page_icon="🤖")

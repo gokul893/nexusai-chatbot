@@ -1,12 +1,13 @@
 
 import streamlit as st
-import openai
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI()
 
 # Set up the Streamlit app
 st.set_page_config(page_title="NexusAI Chatbot", page_icon="🤖")
@@ -24,21 +25,17 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# Chat input from user
 prompt = st.chat_input("Say something to NexusAI...")
 
 if prompt:
-    # Display user message
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Get response from OpenAI
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=st.session_state.messages
     )
-    reply = response.choices[0].message["content"]
+    reply = response.choices[0].message.content
 
-    # Display assistant response
     st.chat_message("assistant").markdown(reply)
     st.session_state.messages.append({"role": "assistant", "content": reply})

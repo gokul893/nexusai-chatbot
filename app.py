@@ -6,8 +6,14 @@ from openai import OpenAI
 # Load environment variables from .env file
 load_dotenv()
 
-# Create OpenAI client (it automatically uses OPENAI_API_KEY env var)
-client = OpenAI()
+# Debug print to check if API key is loaded correctly
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    st.error("ERROR: OPENAI_API_KEY not found. Please set it in your .env file or environment variables.")
+    st.stop()
+
+# Create OpenAI client with explicit API key (safer and clearer)
+client = OpenAI(api_key=api_key)
 
 # Set up the Streamlit app
 st.set_page_config(page_title="NexusAI Chatbot", page_icon="🤖")
@@ -16,7 +22,10 @@ st.title("🤖 NexusAI - Chat with AI")
 # Initialize chat history with a system prompt for persistent memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are NexusAI, a helpful and friendly AI assistant. Remember the context of the conversation and respond accordingly."}
+        {
+            "role": "system",
+            "content": "You are NexusAI, a helpful and friendly AI assistant. Remember the context of the conversation and respond accordingly."
+        }
     ]
 
 # Display previous chat messages (skip the system message)
@@ -34,14 +43,17 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Call OpenAI chat completion API with full conversation history
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=st.session_state.messages
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=st.session_state.messages
+        )
+        # Get assistant reply
+        reply = response.choices[0].message.content
 
-    # Get assistant reply
-    reply = response.choices[0].message.content
+        # Show assistant reply in chat
+        st.chat_message("assistant").markdown(reply)
+        st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    # Show assistant reply in chat
-    st.chat_message("assistant").markdown(reply)
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+    except Exception as e:
+        st.error(f"OpenAI API error: {e}")

@@ -5,8 +5,8 @@ import google.generativeai as genai
 api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 
-# Load Gemini model
-model = genai.GenerativeModel("gemini-pro")
+# Set up model (use full model name)
+model = genai.GenerativeModel(model_name="models/gemini-pro")
 
 # Streamlit setup
 st.set_page_config(page_title="NexusAI Chatbot", page_icon="🤖")
